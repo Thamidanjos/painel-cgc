@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Acompanhamento | CGC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos Gerais */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        :root {
+            --cor-fundo: #0d1117;
+            --cor-card: #161b22;
+            --cor-borda: #30363d;
+            --cor-texto-principal: #c9d1d9;
+            --cor-texto-secundario: #8b949e;
+            --cor-titulo: #58a6ff;
+            --cor-concluido: #3fb950;
+            --cor-andamento: #dbab0a;
+            --cor-nao-iniciado: #f85149;
+            --cor-destaque: rgba(88, 166, 255, 0.2);
+            --transition-speed: 0.5s;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-principal);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Cabeçalho */
+        .header {
+            background-color: var(--cor-card);
+            padding: 20px 40px;
+            text-align: center;
+            border-bottom: 2px solid var(--cor-borda);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: var(--cor-titulo);
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+            animation: pulse 3s infinite alternate;
+        }
+
+        .header h2 {
+            margin: 5px 0 0;
+            font-size: 1.5em;
+            color: var(--cor-texto-secundario);
+            font-weight: 300;
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px rgba(88, 166, 255, 0.3); }
+            100% { text-shadow: 0 0 20px rgba(88, 166, 255, 0.6); }
+        }
+
+        /* Container Principal */
+        .main-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding: 30px;
+            height: calc(100% - 150px);
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Seções (Projetos e Processos) */
+        .section {
+            background-color: var(--cor-card);
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
+            width: 45%;
+            min-width: 400px;
+            height: 90%;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            overflow: hidden;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            position: relative;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+        }
+
+        .section-header {
+            padding: 20px;
+            background-color: rgba(88, 166, 255, 0.1);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--cor-titulo);
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-button {
+            background: rgba(88, 166, 255, 0.2);
+            border: 1px solid var(--cor-borda);
+            color: var(--cor-titulo);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: rgba(88, 166, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .content-wrapper {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Progresso Geral */
+        .overall-progress {
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(88, 166, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--cor-borda);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding: 0 5px;
+        }
+
+        .progress-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .progress-concluido {
+            background-color: var(--cor-concluido);
+        }
+        .progress-concluido::before {
+            background: linear-gradient(135deg, var(--cor-concluido), #2d8e3d);
+        }
+
+        .progress-andamento {
+            background-color: var(--cor-andamento);
+        }
+        .progress-andamento::before {
+            background: linear-gradient(135deg, var(--cor-andamento), #c49b0a);
+        }
+
+        .progress-nao-iniciado {
+            background-color: var(--cor-nao-iniciado);
+        }
+        .progress-nao-iniciado::before {
+            background: linear-gradient(135deg, var(--cor-nao-iniciado), #d63a32);
+        }
+
+        .progress-label {
+            font-size: 0.8em;
+            color: var(--cor-texto-secundario);
+            text-align: center;
+        }
+
+        /* Card de Demanda (Animação) */
+        .card-container {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out;
+            opacity: 0;
+            transform: translateY(20px) rotateX(10deg);
+        }
+
+        .card.active {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+
+        .card.exiting {
+            opacity: 0;
+            transform: translateY(-20px) rotateX(-10deg);
+        }
+
+        .card-demanda {
+            font-size: 1.8em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--cor-texto-principal);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card-info {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-info div {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            background: rgba(88, 166, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--cor-borda);
+            transition: all 0.3s ease;
+        }
+
+        .card-info div:hover {
+            background: rgba(88, 166, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .card-info strong {
+            display: block;
+            color: var(--cor-texto-secundario);
+            font-size: 0.8em;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Barra de Progresso do Status */
+        .status-container {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: var(--cor-texto-secundario);
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--cor-borda);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9em;
+            transition: width 1s ease-in-out, background-color 1s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                          rgba(255,255,255,0) 0%, 
+                          rgba(255,255,255,0.3) 50%, 
+                          rgba(255,255,255,0) 100%);
+            animation: shine 2s infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Cores do Status */
+        .status-concluido { 
+            background-color: var(--cor-concluido);
+            background-image: linear-gradient(to right, var(--cor-concluido), #2d8e3d);
+        }
+        .status-em-andamento { 
+            background-color: var(--cor-andamento);
+            background-image: linear-gradient(to right, var(--cor-andamento), #c49b0a);
+        }
+        .status-nao-iniciado { 
+            background-color: var(--cor-nao-iniciado);
+            background-image: linear-gradient(to right, var(--cor-nao-iniciado), #d63a32);
+        }
+
+        /* Índice de cards */
+        .card-index {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .index-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--cor-texto-secundario);
+            opacity: 0.5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .index-dot.active {
+            opacity: 1;
+            background-color: var(--cor-titulo);
+            transform: scale(1.2);
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+                height: auto;
+            }
+            
+            .section {
+                width: 90%;
+                margin-bottom: 30px;
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header h2 {
+                font-size: 1.2em;
+            }
+            
+            .section {
+                min-width: 95%;
+                min-height: 450px;
+            }
+            
+            .card-demanda {
+                font-size: 1.4em;
+            }
+            
+            .card-info {
+                flex-direction: column;
+            }
+            
+            .card-info div {
+                width: 100%;
+            }
+        }
+
+        /* Animação de fundo */
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(88, 166, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(251, 133, 0, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: moveBackground 30s infinite alternate;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <header class="header">
+        <h1>Painel de Acompanhamento</h1>
+        <h2>Câmara de Governança e Controle - CGC</h2>
+    </header>
+
+    <main class="main-container">
+        <section class="section">
+            <div class="section-header">
+                <h3>Projetos Estratégicos</h3>
+                <div class="nav-buttons">
+                    <div class="nav-button prev-projeto"><i class="fas fa-chevron-left"></i></div>
+                    <div class="nav-button next-projeto"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <div class="overall-progress">
+                    <h4>Progresso Geral</h4>
+                    <div class="progress-container">
+                        <div class="progress-item">
+                            <div class="progress-circle progress-concluido" id="projetos-concluidos">0</div>
+                            <span class="progress-label">Concluídos</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-circle progress-andamento" id="projetos-andamento">0</div>
+                            <span class="progress-label">Em Andamento</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-circle progress-nao-iniciado" id="projetos-nao-iniciado">0</div>
+                            <span class="progress-label">Não Iniciados</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-container">
+                    <div id="projetos-card" class="card"></div>
+                </div>
+                
+                <div class="status-container">
+                    <div class="status-info">
+                        <span>Status do Projeto</span>
+                        <span id="projetos-status-text">-</span>
+                    </div>
+                    <div class="status-bar">
+                        <div id="projetos-progress" class="progress"></div>
+                    </div>
+                </div>
+                
+                <div class="card-index" id="projetos-index"></div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>Processos Gerenciais</h3>
+                <div class="nav-buttons">
+                    <div class="nav-button prev-processo"><i class="fas fa-chevron-left"></i></div>
+                    <div class="nav-button next-processo"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <div class="overall-progress">
+                    <h4>Progresso Geral</h4>
+                    <div class="progress-container">
+                        <div class="progress-item">
+                            <div class="progress-circle progress-concluido" id="processos-concluidos">0</div>
+                            <span class="progress-label">Concluídos</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-circle progress-andamento" id="processos-andamento">0</div>
+                            <span class="progress-label">Em Andamento</span>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-circle progress-nao-iniciado" id="processos-nao-iniciado">0</div>
+                            <span class="progress-label">Não Iniciados</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-container">
+                    <div id="processos-card" class="card"></div>
+                </div>
+                
+                <div class="status-container">
+                    <div class="status-info">
+                        <span>Status do Processo</span>
+                        <span id="processos-status-text">-</span>
+                    </div>
+                    <div class="status-bar">
+                        <div id="processos-progress" class="progress"></div>
+                    </div>
+                </div>
+                
+                <div class="card-index" id="processos-index"></div>
+            </div>
+        </section>
+    </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script>
+        // --- DADOS ---
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/1CKtdBFfSswxxCgohiR-2UgujO3gtk5o-2FdwlqugMdk/export?format=csv&gid=0"; // substitua pelo seu link CSV
+
+let projetosData = [];
+let processosData = [];
+
+function loadCSVData(url, callback) {
+    Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            callback(results.data);
+        }
+    });
+}
+
+function converterStatus(status) {
+    const texto = status.trim().toLowerCase();
+    if (texto === 'não iniciada') return 'Não iniciado';
+    if (texto === 'em execução') return 'Em andamento';
+    if (texto === 'concluída') return 'Concluído';
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+function startApp() {
+    loadCSVData(CSV_URL, dados => {
+        projetosData = [];
+        processosData = [];
+
+        dados.forEach(item => {
+            const entrada = {
+                demanda: item['Descrição'],
+                responsavel: item['Responsável'],
+                prazo: item['Data Limite'],
+                status: converterStatus(item['Status'])
+            };
+
+            if (item['Tipo'].toLowerCase().includes('projeto')) {
+                projetosData.push(entrada);
+            } else if (item['Tipo'].toLowerCase().includes('processo')) {
+                processosData.push(entrada);
+            }
+        });
+
+        initPanel(); // já existente no seu código
+    });
+}
+
+document.addEventListener('DOMContentLoaded', startApp);
+
+        // --- LÓGICA DO PAINEL ---
+        const projetoCard = document.getElementById('projetos-card');
+        const processoCard = document.getElementById('processos-card');
+        const tempoDeTransicao = 8000; // 8 segundos
+        
+        // Elementos de progresso geral
+        const projetosConcluidos = document.getElementById('projetos-concluidos');
+        const projetosAndamento = document.getElementById('projetos-andamento');
+        const projetosNaoIniciado = document.getElementById('projetos-nao-iniciado');
+        const processosConcluidos = document.getElementById('processos-concluidos');
+        const processosAndamento = document.getElementById('processos-andamento');
+        const processosNaoIniciado = document.getElementById('processos-nao-iniciado');
+        
+        // Elementos de status
+        const projetosStatusText = document.getElementById('projetos-status-text');
+        const processosStatusText = document.getElementById('processos-status-text');
+        const projetosProgress = document.getElementById('projetos-progress');
+        const processosProgress = document.getElementById('processos-progress');
+        
+        // Índices
+        const projetosIndex = document.getElementById('projetos-index');
+        const processosIndex = document.getElementById('processos-index');
+        
+        // Botões de navegação
+        const prevProjetoBtn = document.querySelector('.prev-projeto');
+        const nextProjetoBtn = document.querySelector('.next-projeto');
+        const prevProcessoBtn = document.querySelector('.prev-processo');
+        const nextProcessoBtn = document.querySelector('.next-processo');
+        
+        let projetoAtual = 0;
+        let processoAtual = 0;
+        let projetoInterval;
+        let processoInterval;
+        let isManualNavigation = false;
+
+        // Inicializa os índices
+        function initIndexDots(container, count) {
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'index-dot';
+                if (i === 0) dot.classList.add('active');
+                dot.dataset.index = i;
+                container.appendChild(dot);
+            }
+        }
+
+        // Atualiza os dots ativos
+        function updateActiveDot(container, activeIndex) {
+            const dots = container.querySelectorAll('.index-dot');
+            dots.forEach((dot, index) => {
+                if (index === activeIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Calcula estatísticas gerais
+        function calculateStats(data) {
+            return {
+                concluidos: data.filter(item => item.status.toLowerCase() === 'concluído').length,
+                andamento: data.filter(item => item.status.toLowerCase() === 'em andamento').length,
+                naoIniciado: data.filter(item => item.status.toLowerCase() === 'não iniciado').length,
+                total: data.length
+            };
+        }
+
+        // Atualiza o progresso geral
+        function updateOverallProgress(stats, concluidosEl, andamentoEl, naoIniciadoEl) {
+            concluidosEl.textContent = stats.concluidos;
+            andamentoEl.textContent = stats.andamento;
+            naoIniciadoEl.textContent = stats.naoIniciado;
+            
+            // Anima os números
+            animateValue(concluidosEl, 0, stats.concluidos, 1000);
+            animateValue(andamentoEl, 0, stats.andamento, 1000);
+            animateValue(naoIniciadoEl, 0, stats.naoIniciado, 1000);
+        }
+
+        // Animação de contagem
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Informações do status
+        function getStatusInfo(status) {
+            switch (status.toLowerCase()) {
+                case 'concluído':
+                    return { 
+                        classe: 'status-concluido', 
+                        percentual: '100%',
+                        textColor: 'var(--cor-concluido)'
+                    };
+                case 'em andamento':
+                    return { 
+                        classe: 'status-em-andamento', 
+                        percentual: '60%',
+                        textColor: 'var(--cor-andamento)'
+                    };
+                case 'não iniciado':
+                    return { 
+                        classe: 'status-nao-iniciado', 
+                        percentual: '10%',
+                        textColor: 'var(--cor-nao-iniciado)'
+                    };
+                default:
+                    return { 
+                        classe: '', 
+                        percentual: '0%',
+                        textColor: 'var(--cor-texto-principal)'
+                    };
+            }
+        }
+
+        // Renderiza o card
+        function renderCard(element, data, statusTextEl, progressEl) {
+            const statusInfo = getStatusInfo(data.status);
+            
+            element.innerHTML = `
+                <div class="card-demanda"><span>${data.demanda}</span></div>
+                <div class="card-info">
+                    <div>
+                        <strong>RESPONSÁVEL</strong>
+                        <span>${data.responsavel}</span>
+                    </div>
+                    <div>
+                        <strong>PRAZO FINAL</strong>
+                        <span>${data.prazo}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Atualiza o status
+            statusTextEl.textContent = data.status;
+            statusTextEl.style.color = statusInfo.textColor;
+            
+            // Configura a barra de progresso
+            progressEl.className = `progress ${statusInfo.classe}`;
+            progressEl.style.width = '0';
+            progressEl.textContent = data.status;
+            
+            // Anima a barra de progresso
+            setTimeout(() => {
+                progressEl.style.width = statusInfo.percentual;
+            }, 100);
+        }
+
+        // Ciclo de transição entre cards
+        function cycleItems(cardElement, dataArray, currentIndex, statusTextEl, progressEl, indexContainer) {
+            if (!dataArray || dataArray.length === 0) return 0;
+            
+            // Remove a classe active para iniciar a animação de saída
+            cardElement.classList.remove('active');
+            cardElement.classList.add('exiting');
+            
+            setTimeout(() => {
+                // Renderiza o novo card
+                renderCard(cardElement, dataArray[currentIndex], statusTextEl, progressEl);
+                
+                // Remove a classe exiting e adiciona active para animação de entrada
+                cardElement.classList.remove('exiting');
+                cardElement.classList.add('active');
+                
+                // Atualiza o índice ativo
+                updateActiveDot(indexContainer, currentIndex);
+            }, 500); // Tempo da animação de saída
+            
+            return (currentIndex + 1) % dataArray.length;
+        }
+
+        // Navegação manual
+        function manualNavigate(type, direction) {
+    isManualNavigation = true;
+
+    if (type === 'projeto') {
+        clearInterval(projetoInterval);
+        const novoIndex = (projetoAtual + direction + projetosData.length) % projetosData.length;
+        projetoAtual = cycleItems(projetoCard, projetosData, novoIndex, projetosStatusText, projetosProgress, projetosIndex);
+        projetoInterval = setInterval(() => {
+            if (!isManualNavigation) {
+                projetoAtual = cycleItems(projetoCard, projetosData, projetoAtual, projetosStatusText, projetosProgress, projetosIndex);
+            }
+        }, tempoDeTransicao);
+    } else {
+        clearInterval(processoInterval);
+        const novoIndex = (processoAtual + direction + processosData.length) % processosData.length;
+        processoAtual = cycleItems(processoCard, processosData, novoIndex, processosStatusText, processosProgress, processosIndex);
+        processoInterval = setInterval(() => {
+            if (!isManualNavigation) {
+                processoAtual = cycleItems(processoCard, processosData, processoAtual, processosStatusText, processosProgress, processosIndex);
+            }
+        }, tempoDeTransicao);
+    }
+
+    setTimeout(() => {
+        isManualNavigation = false;
+    }, tempoDeTransicao);
+}
+
+
+        // Inicializa o painel
+        function initPanel() {
+            // Inicializa os índices
+            initIndexDots(projetosIndex, projetosData.length);
+            initIndexDots(processosIndex, processosData.length);
+            
+            // Calcula e exibe as estatísticas
+            const projetosStats = calculateStats(projetosData);
+            const processosStats = calculateStats(processosData);
+            
+            updateOverallProgress(projetosStats, projetosConcluidos, projetosAndamento, projetosNaoIniciado);
+            updateOverallProgress(processosStats, processosConcluidos, processosAndamento, processosNaoIniciado);
+            
+            // Renderiza os primeiros cards
+            renderCard(projetoCard, projetosData[projetoAtual], projetosStatusText, projetosProgress);
+            updateActiveDot(projetosIndex, projetoAtual);
+
+            renderCard(processoCard, processosData[processoAtual], processosStatusText, processosProgress);
+            updateActiveDot(processosIndex, processoAtual);
+
+            
+            // Configura os intervalos
+            projetoInterval = setInterval(() => {
+                if (!isManualNavigation) {
+                    projetoAtual = cycleItems(projetoCard, projetosData, projetoAtual, projetosStatusText, projetosProgress, projetosIndex);
+                }
+            }, tempoDeTransicao);
+            
+            processoInterval = setInterval(() => {
+                if (!isManualNavigation) {
+                    processoAtual = cycleItems(processoCard, processosData, processoAtual, processosStatusText, processosProgress, processosIndex);
+                }
+            }, tempoDeTransicao);
+            
+            // Configura os eventos dos botões de navegação
+            prevProjetoBtn.addEventListener('click', () => manualNavigate('projeto', -1));
+            nextProjetoBtn.addEventListener('click', () => manualNavigate('projeto', 1));
+            prevProcessoBtn.addEventListener('click', () => manualNavigate('processo', -1));
+            nextProcessoBtn.addEventListener('click', () => manualNavigate('processo', 1));
+            
+            // Configura os eventos dos dots de índice
+            projetosIndex.querySelectorAll('.index-dot').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    isManualNavigation = true;
+                    clearInterval(projetoInterval);
+                    projetoAtual = parseInt(dot.dataset.index);
+                    projetoAtual = cycleItems(projetoCard, projetosData, projetoAtual, projetosStatusText, projetosProgress, projetosIndex);
+                    projetoInterval = setInterval(() => {
+                        projetoAtual = cycleItems(projetoCard, projetosData, projetoAtual, projetosStatusText, projetosProgress, projetosIndex);
+                    }, tempoDeTransicao);
+                    
+                    setTimeout(() => {
+                        isManualNavigation = false;
+                    }, tempoDeTransicao);
+                });
+            });
+            
+            processosIndex.querySelectorAll('.index-dot').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    isManualNavigation = true;
+                    clearInterval(processoInterval);
+                    processoAtual = parseInt(dot.dataset.index);
+                    processoAtual = cycleItems(processoCard, processosData, processoAtual, processosStatusText, processosProgress, processosIndex);
+                    processoInterval = setInterval(() => {
+                        processoAtual = cycleItems(processoCard, processosData, processoAtual, processosStatusText, processosProgress, processosIndex);
+                    }, tempoDeTransicao);
+                    
+                    setTimeout(() => {
+                        isManualNavigation = false;
+                    }, tempoDeTransicao);
+                });
+            });
+        }
+
+        // Inicia o painel quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', initPanel);
+        setInterval(() => {
+    window.location.reload();
+}, 600000);
+    </script>
+</body>
+</html>
